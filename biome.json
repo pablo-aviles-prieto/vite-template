@@ -7,8 +7,8 @@
     "useIgnoreFile": false
   },
   "files": {
-    "ignoreUnknown": false,
-    "includes": ["**", "!dist", "!node_modules", "!coverage"]
+    "ignoreUnknown": true,
+    "includes": ["**", "!dist", "!node_modules", "!coverage", "!src/styles"]
   },
   "formatter": {
     "enabled": true,
