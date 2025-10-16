@@ -1,3 +1,1 @@
-export const App = () => {
-  return <section className='min-h-screen flex items-center justify-center'>Hello world</section>;
-};
+export const App = () => <section className='flex min-h-screen items-center justify-center'>Hello world</section>;
