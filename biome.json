@@ -36,6 +36,9 @@
             "allow": ["info", "warn", "error"]
           }
         }
+      },
+      "complexity": {
+        "useSimplifiedLogicExpression": "off"
       }
     }
   },
