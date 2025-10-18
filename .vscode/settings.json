@@ -26,5 +26,5 @@
   "[javascriptreact]": {
     "editor.defaultFormatter": "biomejs.biome"
   },
-  "tailwindCSS.experimental.configFile": "src/index.css"
+  "tailwindCSS.experimental.configFile": "src/styles/index.css"
 }
