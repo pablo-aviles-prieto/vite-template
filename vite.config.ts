@@ -22,7 +22,6 @@ const vitestConfig = defineVitestConfig({
 		coverage: {
 			enabled: true,
 			provider: 'v8',
-			all: true,
 			include: ['src/**/*.{ts,tsx}'],
 			reporter: ['text', 'json', 'html'],
 			exclude: ['node_modules/', 'src/__tests__/', '**/*.{test,spec}.{ts,tsx}'],
