@@ -193,6 +193,42 @@ This template uses **Tailwind CSS v4** with the Vite plugin for optimal performa
 | Git Hooks | Husky | 9.1.7 |
 | Package Manager | pnpm | 9.x |
 
+## 🤖 Cursor (Skills & MCP)
+
+This section describes **Cursor-only** features: agent skills and MCP servers. They are not used by other editors or the CLI.
+
+### Agent skills
+
+The repo includes a Cursor agent skill to create new skills with a clear structure and rules:
+
+| Skill | Location | Description |
+|-------|----------|-------------|
+| **write-a-skill** | `.cursor/skills/write-a-skill/` | Guides creating new agent skills with proper structure, progressive disclosure, and bundled resources (including rules). Use when you want to create, write, or build a new skill. |
+
+The skill walks through requirements, drafting `SKILL.md` (and optional reference/example files and scripts), and leaves you with a consistent skill layout.
+
+### MCP servers
+
+Two MCP servers are configured in `.cursor/mcp.json`:
+
+- **Shadcn MCP** – search and use shadcn components (add commands, examples, registries).
+- **GitHub MCP** – interact with GitHub (repos, issues, PRs, Copilot, etc.).
+
+**Setup:**
+
+1. **Enable in Cursor**  
+   Open **Cursor Settings → Tools & MCP** and ensure the MCP servers from this repo are enabled (they should appear when this project is open).
+
+2. **GitHub authentication**  
+   The GitHub MCP uses the `GITHUB_MCP_TOKEN` environment variable. Export it in your shell config so Cursor sees it:
+   - **macOS/Linux (zsh):** add to `~/.zshrc`  
+     `export GITHUB_MCP_TOKEN=ghp_xxxxxxxxxxxxx`
+   - **macOS/Linux (bash):** add to `~/.bashrc`  
+     `export GITHUB_MCP_TOKEN=ghp_xxxxxxxxxxxxx`  
+   Then **open Cursor from that terminal** (e.g. `cursor .`) so the token is available. Use a [GitHub Personal Access Token](https://github.com/settings/tokens) with the scopes required by the GitHub MCP.
+
+---
+
 ## 🤝 Contributing
 
 1. Fork the repository

@@ -1,6 +1,6 @@
 ---
 name: write-a-skill
-description: Create new agent skills with proper structure, progressive disclosure, and bundled resources. Use when user wants to create, write, or build a new skill.
+description: Guides creation of new agent skills with proper structure, progressive disclosure, and bundled resources. Use when user wants to create, write, or build a new skill.
 ---
 
 # Writing Skills
@@ -15,7 +15,7 @@ description: Create new agent skills with proper structure, progressive disclosu
 
 2. **Draft the skill** - create:
    - SKILL.md with concise instructions
-   - Additional reference files if content exceeds 500 lines
+   - Additional reference files when SKILL.md would exceed 100 lines
    - Utility scripts if deterministic operations needed
 
 3. **Review with user** - present draft and ask:
@@ -87,30 +87,16 @@ Helps with documents.
 
 The bad example gives your agent no way to distinguish this from other document skills.
 
-## When to Add Scripts
+## When to Add Scripts / When to Split Files
 
-Add utility scripts when:
-
-- Operation is deterministic (validation, formatting)
-- Same code would be generated repeatedly
-- Errors need explicit handling
-
-Scripts save tokens and improve reliability vs generated code.
-
-## When to Split Files
-
-Split into separate files when:
-
-- SKILL.md exceeds 100 lines
-- Content has distinct domains (finance vs sales schemas)
-- Advanced features are rarely needed
+See [REFERENCE.md](REFERENCE.md) for when to add scripts and when to split into separate files.
 
 ## Review Checklist
 
 After drafting, verify:
 
 - [ ] Description includes triggers ("Use when...")
-- [ ] SKILL.md under 100 lines
+- [ ] SKILL.md under 120 lines
 - [ ] No time-sensitive info
 - [ ] Consistent terminology
 - [ ] Concrete examples included
