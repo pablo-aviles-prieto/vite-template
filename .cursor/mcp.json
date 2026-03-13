@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "Shadcn_MCP": {
+      "command": "npx",
+      "args": ["shadcn@latest", "mcp"]
+    },
+    "Github_MCP": {
+      "url": "https://api.githubcopilot.com/mcp/",
+      "headers": {
+        "Authorization": "Bearer ${env:GITHUB_MCP_TOKEN}"
+      }
+    }
+  }
+}
