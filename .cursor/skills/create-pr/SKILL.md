@@ -22,6 +22,7 @@ Follow these steps in order. If any step fails, fix the issue before continuing.
   - `https://github.com/OWNER/REPO.git` or `https://github.com/OWNER/REPO`
   - `git@github.com:OWNER/REPO.git`
   - `ssh://git@github.com/OWNER/REPO.git`
+- Strip a trailing `.git` suffix and any trailing `/` from the repo name before using it in MCP calls (e.g. `create_pull_request`); GitHub APIs expect the plain repo name, not `REPO.git`.
 - Ensure the current branch is pushed: `git push -u origin HEAD` (or push the current branch name). Resolve push failures before continuing.
 
 ### 2. Run quality checks (package.json scripts)
