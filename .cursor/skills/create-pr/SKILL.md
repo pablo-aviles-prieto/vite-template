@@ -1,6 +1,6 @@
 ---
 name: create-pr
-description: Prepares and creates a GitHub pull request against a base branch (default main). Verifies origin remote, runs build/lint/test scripts from package.json, merges base locally to avoid conflicts, includes branch diff/summary in the PR body, and requests Copilot review when available. Use when the user asks to create a PR, open a pull request, or get changes ready for review.
+description: Prepares and creates a GitHub pull request against a base branch (default main), including origin verification, quality checks, merge/rebase, PR body generation, and optional Copilot review. Use when the user asks to create a PR, open a pull request, or get changes ready for review.
 ---
 
 # Create Pull Request
@@ -21,6 +21,7 @@ Follow these steps in order. If any step fails, fix the issue before continuing.
 - Parse **owner** and **repo** from the URL:
   - `https://github.com/OWNER/REPO.git` or `https://github.com/OWNER/REPO`
   - `git@github.com:OWNER/REPO.git`
+  - `ssh://git@github.com/OWNER/REPO.git`
 - Ensure the current branch is pushed: `git push -u origin HEAD` (or push the current branch name). Resolve push failures before continuing.
 
 ### 2. Run quality checks (package.json scripts)
@@ -43,6 +44,7 @@ If `package.json` has different script names (e.g. `check`, `validate`, `test:al
 
 Avoid merge conflicts on GitHub by updating the current branch with the base:
 
+- Ensure the working tree is clean (no uncommitted changes). If there are uncommitted changes, commit them or stash (`git stash`) before merging or rebasing; otherwise `git merge`/`git rebase` can fail or produce confusing results.
 - Fetch: `git fetch origin BASE` (e.g. `git fetch origin main`)
 - Merge: `git merge origin/BASE` (e.g. `git merge origin/main`)
 - If there are conflicts, resolve them, then run the relevant quality checks again (step 2). Do not create the PR until the merge is clean and checks pass.
@@ -50,7 +52,8 @@ Avoid merge conflicts on GitHub by updating the current branch with the base:
 
 ### 4. Push after merge/rebase
 
-- Run: `git push origin HEAD` (or push the current branch). Ensure the branch on GitHub is up to date before creating the PR.
+- After **merge**: run `git push origin HEAD` (or push the current branch). Ensure the branch on GitHub is up to date before creating the PR.
+- After **rebase**: history was rewritten, so use `git push --force-with-lease origin HEAD` (a normal push will be rejected). After a merge, use a normal push only.
 
 ### 5. Build PR description (diff vs base)
 
