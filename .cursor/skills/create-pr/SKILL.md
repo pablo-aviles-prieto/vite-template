@@ -1,118 +1,89 @@
 ---
 name: create-pr
-description: Prepares and creates a GitHub pull request against a base branch (default main), including origin verification, quality checks, merge/rebase, PR body generation, and optional Copilot review. Use when the user asks to create a PR, open a pull request, or get changes ready for review.
+description: Creates GitHub pull requests using git and the gh CLI with consistent summaries and test plans. Use when the user asks to open, prepare, or update a pull request, share a GitHub PR URL, or mention "create PR", "open PR", or "pull request".
 ---
 
-# Create Pull Request
+# Create PR
 
-## Base branch
+## Quick start
 
-- **Default**: `main`. Use this unless the user specifies another base (e.g. "PR against develop").
-- If the user provides a branch name in the instruction, use that as the base branch.
+When the user asks to create a pull request:
 
-## Workflow
+1. **Understand intent**
+   - Identify the **base branch** (default to `main` if not specified).
+   - Confirm whether to **use the current branch** or create a new one.
+   - Check if the user wants any **specific PR title, labels, or reviewers**.
 
-Follow these steps in order. If any step fails, fix the issue before continuing.
+2. **Inspect local changes**
+   - Run `git status` to see untracked and modified files.
+   - Run `git diff` to understand what will be included.
+   - Run `git log --oneline -n 10` to see recent commits and style.
 
-### 1. Verify GitHub origin
+3. **Prepare commits**
+   - Stage only relevant files with `git add`.
+   - Create one or more commits with clear messages that explain the **why**, not just the **what**.
+   - Avoid committing secrets or environment files (e.g. `.env`, `*.pem`, API keys).
 
-- Run: `git remote get-url origin`
-- Confirm the remote is GitHub (`github.com` in the URL). If there is no `origin` or it is not GitHub, stop and tell the user to add a GitHub remote.
-- Parse **owner** and **repo** from the URL:
-  - `https://github.com/OWNER/REPO.git` or `https://github.com/OWNER/REPO`
-  - `git@github.com:OWNER/REPO.git`
-  - `ssh://git@github.com/OWNER/REPO.git`
-- Strip a trailing `.git` suffix and any trailing `/` from the repo name before using it in MCP calls (e.g. `create_pull_request`); GitHub APIs expect the plain repo name, not `REPO.git`.
-- Ensure the current branch is pushed: `git push -u origin HEAD` (or push the current branch name). Resolve push failures before continuing.
+4. **Sync with remote**
+   - Ensure the base branch (e.g. `main`) is up to date: `git fetch` then `git rebase origin/main` or `git merge origin/main` according to project conventions.
+   - Push the feature branch with `git push -u origin <branch-name>`.
 
-### 2. Run quality checks (package.json scripts)
+5. **Create the PR with `gh`**
+   - Use `gh pr create` with:
+     - **Title**: short, action-oriented summary.
+     - **Body**: include `## Summary` and `## Test plan` sections (see template below).
+     - **Base and head** branches if needed (e.g. `--base main --head my-feature-branch`).
 
-Run these so the PR is ready and CI is likely to pass. Use the project’s `package.json`; if scripts differ, run the equivalents.
+6. **Share result**
+   - Capture and return the created PR URL to the user.
+   - Briefly summarize what is included in the PR in natural language.
 
-**Always run (if present):**
+## Standard PR body template
 
-- `npm run build` (or `pnpm build` / `yarn build`)
-- `npm run lint` (or `lint:fix` only if the user prefers auto-fix)
-- `npm run test:unit` (or `test` / `vitest run` / equivalent)
+When creating a PR body, use this structure and adapt bullets to the actual changes:
 
-**Optional but recommended when fast enough:**
+```md
+## Summary
+- [ ] Short bullet describing the main change
+- [ ] Additional bullet(s) for key behavior or UI changes
 
-- `npm run test:e2e` if the user wants full e2e coverage before opening the PR.
+## Test plan
+- [ ] Tests run (unit/integration/e2e) and key scenarios verified
+- [ ] Manual steps the reviewer can follow, if applicable
 
-If `package.json` has different script names (e.g. `check`, `validate`, `test:all`), run the ones that correspond to build, lint, and tests. If any script fails, fix the failures or report them and do not create the PR until they pass (unless the user explicitly asks to open the PR anyway).
-
-### 3. Merge base branch locally
-
-Avoid merge conflicts on GitHub by updating the current branch with the base:
-
-- Ensure the working tree is clean (no uncommitted changes). If there are uncommitted changes, commit them or stash (`git stash`) before merging or rebasing; otherwise `git merge`/`git rebase` can fail or produce confusing results.
-- Fetch: `git fetch origin BASE` (e.g. `git fetch origin main`)
-- Merge: `git merge origin/BASE` (e.g. `git merge origin/main`)
-- If there are conflicts, resolve them, then run the relevant quality checks again (step 2). Do not create the PR until the merge is clean and checks pass.
-- If the user prefers rebase: `git rebase origin/BASE`, then resolve conflicts and re-run checks if needed.
-
-### 4. Push after merge/rebase
-
-- After **merge**: run `git push origin HEAD` (or push the current branch). Ensure the branch on GitHub is up to date before creating the PR.
-- After **rebase**: history was rewritten, so use `git push --force-with-lease origin HEAD` (a normal push will be rejected). After a merge, use a normal push only.
-
-### 5. Build PR description (diff vs base)
-
-Include a concise summary of what changed so reviewers see the scope. Generate it from git:
-
-**Commits in this branch (not in base):**
-
-```bash
-git log origin/BASE..HEAD --oneline
+## Notes
+- [ ] Known limitations, follow-ups, or related tickets (if any)
 ```
 
-**Files changed (summary):**
+## Detailed workflow
 
-```bash
-git diff origin/BASE...HEAD --stat
-```
+Use this checklist when the user explicitly asks you to "create a PR" or "open a PR":
 
-Optionally, for a short list of changed files only:
+1. **Analyze the diff**
+   - Review **all** changes that will be part of the PR (not just the latest commit).
+   - Group changes into 2–5 bullet points for the PR summary.
 
-```bash
-git diff origin/BASE...HEAD --name-only
-```
+2. **Draft commit and PR messages**
+   - Align with the repo’s existing commit and PR style (tense, prefixes, ticket IDs).
+   - Prefer titles like `Fix ...`, `Add ...`, `Refactor ...`, or `Update ...`.
 
-Use the output to write a **"Changes in this PR"** (or similar) section in the PR body, e.g.:
+3. **Create or reuse the branch**
+   - If on `main` (or the base branch), create a new branch with a descriptive name (e.g. `feature/user-auth`, `fix/navbar-layout`).
+   - If already on a feature branch, reuse it unless the user asks otherwise.
 
-- List of commit titles (or paste the `git log` output).
-- List of files changed or a short summary (from `git diff --stat`).
+4. **Push and create PR**
+   - Push with `git push -u origin HEAD` if the branch is new.
+   - Run `gh pr create` with:
+     - `--title "<concise title>"`
+     - `--body "<markdown body using the template>"`
+     - `--base <base-branch>` when needed.
 
-Do not paste a huge full diff into the description; summary and file list are enough. If the diff is small, a brief inline summary is fine.
+5. **After creation**
+   - Return the PR URL and final title.
+   - Mention any **manual steps** reviewers must take (migrations, feature flags, config changes).
+   - If requested, also run `gh pr view --web` or show `gh pr view` summary for verification.
 
-### 6. Create the PR
+This skill assumes:
+- The local repo is already authenticated with GitHub and the `gh` CLI is installed.
+- Project-specific branching or labeling conventions should be inferred from existing PRs when possible and followed consistently.
 
-- Use the GitHub MCP tool **create_pull_request** with:
-  - **owner**, **repo**: from step 1
-  - **head**: current branch name (e.g. `git branch --show-current`)
-  - **base**: base branch (e.g. `main` or the branch the user requested)
-  - **title**: clear, concise PR title
-  - **body**: description including the "Changes in this PR" summary from step 5 (and any other context the user wants).
-- If the tool returns an error (e.g. PR already exists), check existing PRs and either update that PR or tell the user.
-
-### 7. Request Copilot review (if available)
-
-- After the PR is created, call the GitHub MCP tool **request_copilot_review** with:
-  - **owner**, **repo**: same as step 1
-  - **pullNumber**: the number of the PR just created
-- If the tool is not available or returns an error (e.g. Copilot not enabled), skip this step and mention to the user that Copilot review was not requested.
-
-## Checklist (for the agent)
-
-- [ ] Origin is GitHub; owner and repo parsed
-- [ ] Current branch pushed to origin
-- [ ] `build`, `lint`, and test scripts from package.json run and pass
-- [ ] Base branch merged (or rebased) locally; no conflicts
-- [ ] Branch pushed after merge/rebase
-- [ ] PR description includes commit list and file-change summary vs base
-- [ ] PR created against the correct base (main or user-specified)
-- [ ] Copilot review requested when the MCP tool is available
-
-## Optional: Getting PR number after create
-
-The **create_pull_request** result should include the new PR number. Use that value as **pullNumber** for **request_copilot_review**. If the result format does not include the number, use **list_pull_requests** (filter by head branch and open state) to get the PR number.
