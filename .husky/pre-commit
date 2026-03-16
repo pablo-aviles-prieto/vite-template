@@ -1,5 +1,5 @@
 #!/bin/sh
-FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(js|ts|jsx|tsx|json|css|md)$' || true)
+FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(js|ts|jsx|tsx|json|css)$' || true)
 if [ -n "$FILES" ]; then
 	pnpm biome check $FILES
 fi
